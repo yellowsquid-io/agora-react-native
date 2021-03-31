@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+
 import RtcEngine, {
   RtcLocalView,
   RtcRemoteView,
@@ -25,6 +26,7 @@ interface Props {}
  */
 interface State {
   appId: string;
+  secret: string;
   token: string;
   channelName: string;
   joinSucceed: boolean;
@@ -37,9 +39,10 @@ export default class App extends Component<Props, State> {
   constructor(props) {
     super(props);
     this.state = {
-      appId: YourAppId,
-      token: YourToken,
-      channelName: 'channel-x',
+      appId: '0055f4aa3edf469c8d653df4fb899687',
+      secret: 'f1bec033e9e84e98ba0d01369d8fde6d',
+      token: '0060055f4aa3edf469c8d653df4fb899687IAD/z/lFVGKuHeSl/D7t7jmSe1TYR64v0hGgfydiAlwG+FVqWGIAAAAAEAAEa9nrgL1DYAEAAQB/vUNg',
+      channelName: 'gavel',
       joinSucceed: false,
       peerIds: [],
     };
@@ -61,7 +64,7 @@ export default class App extends Component<Props, State> {
    */
   init = async () => {
     const { appId } = this.state;
-    this._engine = await RtcEngine.create(appId);
+    this._engine = await RtcEngine.createWithAreaCode(appId, 4); // https://docs.agora.io/en/live-streaming/API%20Reference/react_native/classes/rtcengine.html#createwithareacode
     await this._engine.enableVideo();
 
     this._engine.addListener('Warning', (warn) => {
@@ -69,7 +72,9 @@ export default class App extends Component<Props, State> {
     });
 
     this._engine.addListener('Error', (err) => {
-      console.log('Error', err);
+      console.log('Err', err);
+      console.log(err);
+      console.log({testing: 5, test: {msg: "hallo", code: 3}});
     });
 
     this._engine.addListener('UserJoined', (uid, elapsed) => {
@@ -108,7 +113,7 @@ export default class App extends Component<Props, State> {
    * @name startCall
    * @description Function to start the call
    */
-  startCall = async () => {
+  startAsHost = async () => {
     // Join Channel using null token and channel name
     await this._engine?.joinChannel(
       this.state.token,
@@ -132,11 +137,11 @@ export default class App extends Component<Props, State> {
       <View style={styles.max}>
         <View style={styles.max}>
           <View style={styles.buttonHolder}>
-            <TouchableOpacity onPress={this.startCall} style={styles.button}>
-              <Text style={styles.buttonText}> Start Call </Text>
+            <TouchableOpacity onPress={this.startAsHost} style={styles.button}>
+              <Text style={styles.buttonText}> Host </Text>
             </TouchableOpacity>
             <TouchableOpacity onPress={this.endCall} style={styles.button}>
-              <Text style={styles.buttonText}> End Call </Text>
+              <Text style={styles.buttonText}> End </Text>
             </TouchableOpacity>
           </View>
           {this._renderVideos()}
@@ -156,7 +161,11 @@ export default class App extends Component<Props, State> {
         />
         {this._renderRemoteVideos()}
       </View>
-    ) : null;
+    ) : (
+      <View style={styles.fullView}>
+        <Text>Moow</Text>
+      </View>
+    );
   };
 
   _renderRemoteVideos = () => {
